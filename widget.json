@@ -3,7 +3,7 @@
 	"name": "com.mp5systems.salesforce",
 	"description" : "Force.com Integration",
 	"author": "Michael Pauley",
-	"version": "1.0",
+	"version": "1.0.0",
 	"copyright":"Copyright (c) 2015",
 	"license":"Public Domain",
 	"min-alloy-version": "1.0",
