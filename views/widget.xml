@@ -1,0 +1,12 @@
+<Alloy>
+	<Window id="forceWindow" modal="true" title="Force.com Login" onAndroidback="cancel">
+		<RightNavButton platform="ios">
+			<Button style="Ti.UI.iPhone.SystemButtonStyle.PLAIN" onClick="cancel">
+				Cancel
+			</Button>
+		</RightNavButton>
+		<WebView id="webView" height="Ti.UI.FILL" width="Ti.UI.FILL" />
+		<ActivityIndicator id="ind" platform="android" location="Ti.UI.ActivityIndicator.STATUS_BAR"
+		type="Ti.UI.ActivityIndicator.DETERMINANT" message="Loading..." />
+	</Window>
+</Alloy>
