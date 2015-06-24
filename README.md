@@ -39,7 +39,7 @@ force.authorize({
 		alert('cancel');
 	}
 });
-
+```
 ### Run a query
 ```
 	force.request({
