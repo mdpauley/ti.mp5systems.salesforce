@@ -12,20 +12,20 @@ var CONSUMER_SECRET = Ti.App.Properties.getString('force.consumer.secret');
 
 var BASE_URL = Ti.App.Properties.getString('force.base_url');
 var REDIRECT_URI = Ti.App.Properties.getString('force.redirect_uri');
-var LOGIN_URL = BASE_URL + '/services/oauth2/authorize?display=touch&response_type=token' + '&client_id=' + Ti.Network.encodeURIComponent(CONSUMER_KEY) + '&redirect_uri=' + REDIRECT_URI;
-var REFRESH_URL = BASE_URL + '/services/oauth2/token?grant_type=refresh_token&format=json' + '&client_id=' + Ti.Network.encodeURIComponent(CONSUMER_KEY) + '&refresh_token=' + REFRESH_TOKEN;
+var LOGIN_URL = BASE_URL + '/services/oauth2/authorize?display=touch&response_type=token&client_id=' + Ti.Network.encodeURIComponent(CONSUMER_KEY) + '&redirect_uri=' + REDIRECT_URI;
+var REFRESH_URL = BASE_URL + '/services/oauth2/token?grant_type=refresh_token&format=json&client_id=' + Ti.Network.encodeURIComponent(CONSUMER_KEY) + '&refresh_token=' + REFRESH_TOKEN;
 
 var cancel = function() {
 };
 
 //Authorize a Salesforce.com User Account
 exports.authorize = function(callbacks) {
-
+	var cbs = callbacks;
 	//Authorization Window UI Constructor
 	function AuthorizationWindow() {
 		cancel = function() {
 			$.forceWindow.close();
-			callbacks.cancel && callbacks.cancel();
+			cbs.cancel && cbs.cancel();
 		};
 
 		$.forceWindow.addEventListener('open', function(e) {
@@ -51,48 +51,47 @@ exports.authorize = function(callbacks) {
 	//refresh the tokens if we have both the access and refresh tokens
 	if (ACCESS_TOKEN && REFRESH_TOKEN) {
 		// Setup the xhr object
-		var xhr = Ti.Network.createHTTPClient({
+		xhr = Ti.Network.createHTTPClient({
 			onload : function(e) {
 				ACCESS_TOKEN = JSON.parse(this.responseText).access_token;
 				Ti.App.Properties.setString('force.accessToken', ACCESS_TOKEN);
-				callbacks.success();
+				cbs.success();
 			},
 			onerror : function(e) {
-				exports.authorize(callbacks);
+				exports.authorize(cbs);
 			}
 		});
 		xhr.open("POST", REFRESH_URL);
 		xhr.validatesSecureCertificate = true;
 		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.send(null);
+		xhr.send();
 	} else {
 		var authWindow = new AuthorizationWindow();
 
 		authWindow.addEventListener('urlChanged', function(e) {
 			if (e.url.indexOf('/oauth2/success') !== -1) {
 				var hash = e.url.split('#')[1];
-				var elements = hash.split('&');
-				for (var i = 0,
-				    l = elements.length; i < l; i++) {
-					var element = elements[i].split('=');
-					switch (element[0]) {
+				var els = hash.split('&');
+				els.forEach(function(el, i, a) {
+					var kv = el.split('=');
+					switch (kv[0]) {
 					case 'access_token':
-						ACCESS_TOKEN = Ti.Network.decodeURIComponent(element[1]);
+						ACCESS_TOKEN = Ti.Network.decodeURIComponent(kv[1]);
 						Ti.App.Properties.setString('force.accessToken', ACCESS_TOKEN);
 						break;
 					case 'refresh_token':
-						REFRESH_TOKEN = Ti.Network.decodeURIComponent(element[1]);
+						REFRESH_TOKEN = Ti.Network.decodeURIComponent(kv[1]);
 						Ti.App.Properties.setString('force.refreshToken', REFRESH_TOKEN);
 						break;
 					case 'instance_url':
-						INSTANCE_URL = Ti.Network.decodeURIComponent(element[1]);
+						INSTANCE_URL = Ti.Network.decodeURIComponent(kv[1]);
 						Ti.App.Properties.setString('force.instanceURL', INSTANCE_URL);
 						break;
 					default:
 						break;
 					}
-				}
-				callbacks.success();
+				});
+				cbs.success();
 				authWindow.close();
 			}
 		});
