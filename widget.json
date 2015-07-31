@@ -1,6 +1,6 @@
 {
-	"id": "com.mp5systems.salesforce",
-	"name": "com.mp5systems.salesforce",
+	"id": "ti.mp5systems.salesforce",
+	"name": "ti.mp5systems.salesforce",
 	"description" : "Force.com Integration",
 	"author": "Michael Pauley",
 	"version": "1.0.1",
